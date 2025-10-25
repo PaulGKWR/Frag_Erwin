@@ -100,6 +100,17 @@ function renderCitations(messageElement, citations) {
 
     console.log('Rendering citations:', citations);
 
+    // Gruppiere Citations nach Dokument
+    const uniqueDocs = new Map();
+    citations.forEach(citation => {
+        const filepath = citation?.filepath || citation?.title || 'unknown';
+        if (!uniqueDocs.has(filepath)) {
+            uniqueDocs.set(filepath, citation);
+        }
+    });
+
+    if (uniqueDocs.size === 0) return;
+
     const container = document.createElement('div');
     container.className = 'message-citations';
     container.style.cssText = 'margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(124, 58, 237, 0.2);';
@@ -109,15 +120,18 @@ function renderCitations(messageElement, citations) {
     title.style.cssText = 'display: block; margin-bottom: 8px; color: #7c3aed; font-size: 0.9em;';
     container.appendChild(title);
 
-    citations.forEach((citation, index) => {
+    let docIndex = 1;
+    uniqueDocs.forEach((citation, filepath) => {
         const link = document.createElement('a');
-        const url = citation?.url || citation?.filepath;
-        const title = citation?.title || `Quelle ${index + 1}`;
+        let url = citation?.url || citation?.filepath || '#';
         
-        link.href = url || '#';
+        // Entferne Dateiendung für Display
+        const displayName = filepath.replace(/\.[^/.]+$/, '').substring(0, 30);
+        
+        link.href = url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.textContent = title;
+        link.textContent = `[${docIndex}] ${displayName}${filepath.length > 30 ? '...' : ''}`;
         link.style.cssText = 'display: block; margin: 6px 0; color: #7c3aed; text-decoration: none; font-size: 0.85em; transition: color 0.2s;';
         
         link.addEventListener('mouseover', () => {
@@ -130,6 +144,7 @@ function renderCitations(messageElement, citations) {
         });
         
         container.appendChild(link);
+        docIndex++;
     });
 
     messageElement.appendChild(container);
