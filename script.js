@@ -8,25 +8,44 @@ const CHAT_ENHANCEMENT_STYLES = `
 .message-citations a { color: #4255c3; text-decoration: underline; }
 .message-citations a:hover { color: #2d3aa0; text-decoration: none; }
 .citation-meta { color: #7f8c8d; font-size: 0.75rem; }
+
 .typing-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 12px;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 12px 16px !important;
 }
+
 .typing-indicator span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #667eea;
-    animation: typing-bounce 1.4s infinite ease-in-out;
+    display: block !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+    background-color: #667eea !important;
+    animation: typing-bounce 1.4s infinite ease-in-out both !important;
 }
-.typing-indicator span:nth-child(1) { animation-delay: 0s; }
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s !important;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s !important;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s !important;
+}
+
 @keyframes typing-bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
-    30% { transform: translateY(-10px); opacity: 1; }
+    0%, 60%, 100% {
+        transform: translateY(0) !important;
+        opacity: 0.6 !important;
+    }
+    30% {
+        transform: translateY(-12px) !important;
+        opacity: 1 !important;
+    }
 }
 `;
 

@@ -1,0 +1,32 @@
+name: Deploy Azure Function
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'azure-function-v3/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          cd azure-function-v3
+          npm install --production
+      
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: FragErwinChat
+          package: azure-function-v3
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
