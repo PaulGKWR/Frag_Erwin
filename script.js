@@ -10,39 +10,35 @@ const CHAT_ENHANCEMENT_STYLES = `
 .citation-meta { color: #7f8c8d; font-size: 0.75rem; }
 
 .typing-indicator {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 12px 16px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
 }
 
 .typing-indicator span {
-    display: inline-block !important;
-    width: 10px !important;
-    height: 10px !important;
-    border-radius: 50% !important;
-    background-color: #667eea !important;
-    animation: typing-bounce 1.4s infinite ease-in-out both !important;
-}
-
-.typing-indicator span:nth-child(1) {
-    animation-delay: 0s !important;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #667eea;
+    animation: typing-bounce 1.4s ease-in-out infinite;
 }
 
 .typing-indicator span:nth-child(2) {
-    animation-delay: 0.2s !important;
+    animation-delay: 0.2s;
 }
 
 .typing-indicator span:nth-child(3) {
-    animation-delay: 0.4s !important;
+    animation-delay: 0.4s;
 }
 
 @keyframes typing-bounce {
     0%, 60%, 100% {
-        transform: translateY(0) !important;
+        transform: translateY(0);
     }
     30% {
-        transform: translateY(-12px) !important;
+        transform: translateY(-15px);
     }
 }
 `;
@@ -235,41 +231,18 @@ async function sendMessage() {
     
     const botMsg = document.createElement('div');
     botMsg.className = 'message bot-message';
-    
-    // Format text with line breaks after sentences for better readability
-    const formattedText = formatTextWithLineBreaks(response.text);
-    botMsg.innerHTML = formattedText;
+    botMsg.textContent = response.text;
     
     renderCitations(botMsg, response.citations);
     messagesContainer.appendChild(botMsg);
     
-    // Scroll to show the beginning of the answer
-    botMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Scroll to show the new message at the top of the visible area
+    setTimeout(() => {
+        botMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
 
     setInputDisabled(false);
     input.focus();
-}
-
-function formatTextWithLineBreaks(text) {
-    // Split by sentence endings and add line breaks
-    // Match sentences ending with . ! ? followed by space or end of string
-    const sentences = text.split(/([.!?]\s+)/);
-    let formatted = '';
-    
-    for (let i = 0; i < sentences.length; i += 2) {
-        const sentence = sentences[i];
-        const punctuation = sentences[i + 1] || '';
-        
-        if (sentence.trim()) {
-            formatted += sentence + punctuation;
-            // Add line break after each sentence, except the last one
-            if (i < sentences.length - 2) {
-                formatted += '<br><br>';
-            }
-        }
-    }
-    
-    return formatted || text;
 }async function callAzureOpenAI(message) {
   try {
     const response = await fetch(AZURE_FUNCTION_URL, {
