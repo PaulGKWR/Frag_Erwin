@@ -18,18 +18,24 @@ async function loadFAQs(){try{const response=await fetch('faq-data.json');faqDat
       body: JSON.stringify({ message: message })
     });
     
+    console.log('Azure Function response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorBody = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorBody}`);
     }
-    
-  const data = await response.json();
-  const text = data?.message || data?.response;
-  return text || 'Entschuldigung, ich konnte keine Antwort generieren.';
+
+    const data = await response.json();
+    console.log('Azure Function response data:', data);
+    const text = data?.message || data?.response;
+    if (!text) {
+      throw new Error('Antwort ohne message-Feld erhalten');
+    }
+    return text;
     
   } catch (error) {
     console.error('Fehler beim API-Call:', error);
-    // Fallback zu lokalen Mock-Antworten
-    return getFallbackResponse(message);
+    return `[Fallback] ${getFallbackResponse(message)}\n(Grund: ${error.message})`;
   }
 }
 
