@@ -2,17 +2,167 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Frag Erwin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ Abwassergebühren - Frag Erwin</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="chat-container">
-    <div id="chat-box"></div>
-    <div id="chat-input">
-      <input id="user-input" placeholder="Schreib etwas...">
-      <button onclick="sendMessage()">Senden</button>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="logo">💧 Abwassergebühren FAQ</h1>
+        <p class="subtitle">Häufig gestellte Fragen zu Abwassergebühren</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Hero Section -->
+      <section class="hero">
+        <h2>Willkommen zu unserem FAQ-Bereich</h2>
+        <p>Finden Sie schnell Antworten auf die häufigsten Fragen zu Abwassergebühren. Bei weiteren Fragen steht Ihnen unser KI-Assistent Erwin zur Verfügung.</p>
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="faq-section">
+        <h3>Häufig gestellte Fragen</h3>
+        
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(1)">
+            <span>Was sind Abwassergebühren und wofür werden sie erhoben?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" id="faq-1">
+            <p>Abwassergebühren sind kommunale Abgaben für die Ableitung, Reinigung und Entsorgung von Abwasser. Sie decken die Kosten für:</p>
+            <ul>
+              <li>Betrieb und Wartung der Kanalisation</li>
+              <li>Abwasserreinigung in Kläranlagen</li>
+              <li>Infrastruktur und Anlagenmodernisierung</li>
+              <li>Umweltschutzmaßnahmen</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(2)">
+            <span>Wie werden Abwassergebühren berechnet?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" id="faq-2">
+            <p>Die Berechnung erfolgt meist nach dem Frischwasserverbrauch:</p>
+            <ul>
+              <li><strong>Schmutzwassergebühr:</strong> Nach verbrauchten Kubikmetern Frischwasser</li>
+              <li><strong>Niederschlagswassergebühr:</strong> Nach versiegelter Grundstücksfläche</li>
+              <li>Gebührensätze variieren je nach Kommune</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(3)">
+            <span>Wann und wie erhalte ich meine Abwasserrechnung?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" id="faq-3">
+            <p>Abwasserrechnungen werden normalerweise:</p>
+            <ul>
+              <li>Jährlich erstellt und verschickt</li>
+              <li>Basierend auf der Wasserverbrauchsabrechnung</li>
+              <li>Bei unterjährigem Verbrauch als Abschlagszahlungen</li>
+              <li>Per Post oder digital zugestellt</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(4)">
+            <span>Kann ich gegen die Abwassergebühr Einspruch einlegen?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" id="faq-4">
+            <p>Ja, Sie haben verschiedene Möglichkeiten:</p>
+            <ul>
+              <li><strong>Widerspruch:</strong> Innerhalb eines Monats nach Erhalt des Bescheids</li>
+              <li><strong>Überprüfung:</strong> Bei offensichtlichen Fehlern in der Berechnung</li>
+              <li><strong>Beratung:</strong> Kontakt zur zuständigen Verwaltung</li>
+              <li><strong>Rechtsmittel:</strong> Bei unbegründeter Ablehnung des Widerspruchs</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(5)">
+            <span>Was passiert bei Zahlungsverzug?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" id="faq-5">
+            <p>Bei nicht rechtzeitiger Zahlung können folgen:</p>
+            <ul>
+              <li>Mahnung mit Mahngebühren</li>
+              <li>Säumniszuschläge</li>
+              <li>Vollstreckungsmaßnahmen</li>
+              <li>In Extremfällen: Wassersperrung</li>
+            </ul>
+            <p><strong>Tipp:</strong> Bei Zahlungsschwierigkeiten frühzeitig Kontakt aufnehmen!</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(6)">
+            <span>Gibt es Ermäßigungen oder Befreiungen?</span>
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer" id="faq-6">
+            <p>Mögliche Ermäßigungen:</p>
+            <ul>
+              <li><strong>Soziale Härtefälle:</strong> Nach individueller Prüfung</li>
+              <li><strong>Regenwasserversickerung:</strong> Reduzierte Niederschlagswassergebühr</li>
+              <li><strong>Eigenwasserversorgung:</strong> Separate Messung möglich</li>
+              <li><strong>Besondere Umstände:</strong> Z.B. längere Abwesenheit</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 Abwassergebühren FAQ. Bei weiteren Fragen nutzen Sie unseren KI-Assistenten Erwin.</p>
+    </div>
+  </footer>
+
+  <!-- Floating Chat Button -->
+  <button class="chat-fab" onclick="openChat()" title="Chat mit Erwin">
+    💬
+  </button>
+
+  <!-- Chat Overlay -->
+  <div id="chat-overlay" class="chat-overlay">
+    <div class="chat-modal">
+      <div class="chat-header">
+        <h4>💧 Chat mit Erwin</h4>
+        <button class="close-chat" onclick="closeChat()">&times;</button>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <div class="message bot-message">
+          <p>Hallo! Ich bin Erwin, Ihr KI-Assistent für Fragen zu Abwassergebühren. Wie kann ich Ihnen helfen?</p>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Ihre Frage zu Abwassergebühren..." maxlength="500">
+        <button onclick="sendMessage()" id="send-button">Senden</button>
+      </div>
     </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
