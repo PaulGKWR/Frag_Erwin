@@ -95,7 +95,7 @@ module.exports = async function (context, req) {
         const searchSemanticConfig = process.env.AZURE_SEARCH_SEMANTIC_CONFIG;
         const searchQueryType = process.env.AZURE_SEARCH_QUERY_TYPE || 'simple';
         const searchTopN = parseInt(process.env.AZURE_SEARCH_TOP_N || '5', 10);
-        const searchInScope = (process.env.AZURE_SEARCH_IN_SCOPE || 'true').toLowerCase() !== 'false';
+        const searchInScope = false; // Allow answers even when no documents are found
         const searchTitleField = process.env.AZURE_SEARCH_TITLE_FIELD || 'title';
         const searchUrlField = process.env.AZURE_SEARCH_URL_FIELD || 'url';
         const searchContentFields = (process.env.AZURE_SEARCH_CONTENT_FIELDS || 'content')
