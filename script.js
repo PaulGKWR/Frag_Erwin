@@ -203,6 +203,25 @@ function setInputDisabled(isDisabled) {
   if (button) button.disabled = isDisabled;
 }
 
+function useStarterPrompt(button) {
+  const promptText = button.querySelector('.prompt-text').textContent;
+  const input = document.getElementById('chat-input');
+  
+  if (input) {
+    input.value = promptText;
+    input.focus();
+  }
+  
+  // Hide all starter prompts after clicking one
+  const starterPromptsContainer = document.querySelector('.starter-prompts');
+  if (starterPromptsContainer) {
+    starterPromptsContainer.style.display = 'none';
+  }
+  
+  // Optionally send the message automatically
+  sendMessage();
+}
+
 async function sendMessage() {
     const input = document.getElementById('chat-input');
     const messagesContainer = document.getElementById('chat-messages');
