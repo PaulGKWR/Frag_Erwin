@@ -17,7 +17,7 @@ const CHAT_ENHANCEMENT_STYLES = `
 }
 
 .typing-indicator span {
-    display: block !important;
+    display: inline-block !important;
     width: 10px !important;
     height: 10px !important;
     border-radius: 50% !important;
@@ -40,11 +40,9 @@ const CHAT_ENHANCEMENT_STYLES = `
 @keyframes typing-bounce {
     0%, 60%, 100% {
         transform: translateY(0) !important;
-        opacity: 0.6 !important;
     }
     30% {
         transform: translateY(-12px) !important;
-        opacity: 1 !important;
     }
 }
 `;
@@ -233,14 +231,20 @@ async function sendMessage() {
         };
     }
 
-    pendingMsg.innerHTML = '';
+    pendingMsg.remove();
+    
+    const botMsg = document.createElement('div');
+    botMsg.className = 'message bot-message';
     
     // Format text with line breaks after sentences for better readability
     const formattedText = formatTextWithLineBreaks(response.text);
-    pendingMsg.innerHTML = formattedText;
+    botMsg.innerHTML = formattedText;
     
-    renderCitations(pendingMsg, response.citations);
-    scrollMessagesToBottom(messagesContainer);
+    renderCitations(botMsg, response.citations);
+    messagesContainer.appendChild(botMsg);
+    
+    // Scroll to show the beginning of the answer
+    botMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     setInputDisabled(false);
     input.focus();
