@@ -1,0 +1,8 @@
+# Ignoriere sensitive Dateien
+.env
+local.settings.json
+node_modules/
+dist/
+.vscode/
+*.log
+.DS_Store
