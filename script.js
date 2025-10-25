@@ -6,8 +6,8 @@ async function loadFAQs(){try{const response=await fetch('faq-data.json');faqDat
 <span class="faq-icon">+</span>
 </button>
 <div class="faq-answer">${faq.antwort}</div>`;faqSection.appendChild(faqItem)})}function toggleFaq(index){const faqItems=document.querySelectorAll('.faq-item');if(index<0||index>=faqItems.length)return;const clickedItem=faqItems[index];const clickedAnswer=clickedItem.querySelector('.faq-answer');const isCurrentlyOpen=clickedItem.classList.contains('active');faqItems.forEach((item,i)=>{if(i!==index){item.classList.remove('active');item.querySelector('.faq-answer').classList.remove('open')}});if(!isCurrentlyOpen){clickedItem.classList.add('active');clickedAnswer.classList.add('open')}else{clickedItem.classList.remove('active');clickedAnswer.classList.remove('open')}}function openChat(){document.getElementById('chat-overlay').classList.add('open')}function closeChat(){document.getElementById('chat-overlay').classList.remove('open')}async function sendMessage(){const input=document.getElementById('chat-input');const message=input.value.trim();if(!message)return;input.value='';const messagesContainer=document.getElementById('chat-messages');const userMsg=document.createElement('div');userMsg.className='message user-message';userMsg.textContent=message;messagesContainer.appendChild(userMsg);messagesContainer.scrollTop=messagesContainer.scrollHeight;const response=await callAzureOpenAI(message);const botMsg=document.createElement('div');botMsg.className='message bot-message';botMsg.textContent=response;messagesContainer.appendChild(botMsg);messagesContainer.scrollTop=messagesContainer.scrollHeight}async function callAzureOpenAI(message){
-  // Azure Function Endpoint - Ersetze mit deiner Function App URL
-  const AZURE_FUNCTION_URL = 'https://DEINE-FUNCTION-APP.azurewebsites.net/api/chat';
+  // Azure Function Endpoint
+  const AZURE_FUNCTION_URL = 'https://fragerwinbe-b2h0dghuc6fscpam.eastus-01.azurewebsites.net/api/chat';
   
   try {
     const response = await fetch(AZURE_FUNCTION_URL, {
