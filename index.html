@@ -57,22 +57,25 @@
         <button class="close-chat" onclick="closeChat()">&times;</button>
       </div>
       <div id="chat-messages" class="chat-messages">
-        <div class="message bot-message">
+        <div class="message bot-message welcome-message">
           <p>Hallo! Ich bin Erwin, Ihr KI-Assistent für Fragen zu Abwassergebühren. Wie kann ich Ihnen helfen?</p>
         </div>
-        <div class="starter-prompts">
-          <button class="prompt-card" onclick="useStarterPrompt(this)">
-            <span class="prompt-icon">💰</span>
-            <span class="prompt-text">Wie setzt sich die Abwassergebühr genau zusammen?</span>
-          </button>
-          <button class="prompt-card" onclick="useStarterPrompt(this)">
-            <span class="prompt-icon">🌧️</span>
-            <span class="prompt-text">Zählt die tatsächliche Regenmenge, die auf meinem Grundstück niedergeht?</span>
-          </button>
-          <button class="prompt-card" onclick="useStarterPrompt(this)">
-            <span class="prompt-icon">💧</span>
-            <span class="prompt-text">Ich habe eine Zisterne – muss ich dafür trotzdem Regenwassergebühren zahlen?</span>
-          </button>
+        <div class="starter-prompts-section">
+          <p class="starter-prompts-title">📝 Beispielfragen:</p>
+          <div class="starter-prompts">
+            <button class="prompt-card" onclick="useStarterPrompt(this)">
+              <span class="prompt-icon">💰</span>
+              <span class="prompt-text">Wie setzt sich die Abwassergebühr genau zusammen?</span>
+            </button>
+            <button class="prompt-card" onclick="useStarterPrompt(this)">
+              <span class="prompt-icon">🌧️</span>
+              <span class="prompt-text">Zählt die tatsächliche Regenmenge, die auf meinem Grundstück niedergeht?</span>
+            </button>
+            <button class="prompt-card" onclick="useStarterPrompt(this)">
+              <span class="prompt-icon">💧</span>
+              <span class="prompt-text">Ich habe eine Zisterne – muss ich dafür trotzdem Regenwassergebühren zahlen?</span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="chat-input-area">
@@ -82,7 +85,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=20251026i"></script>
+  <script src="script.js?v=20251026k"></script>
 
 </body>
 </html>

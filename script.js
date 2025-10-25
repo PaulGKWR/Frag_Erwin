@@ -212,10 +212,10 @@ function useStarterPrompt(button) {
     input.focus();
   }
   
-  // Hide all starter prompts after clicking one
-  const starterPromptsContainer = document.querySelector('.starter-prompts');
-  if (starterPromptsContainer) {
-    starterPromptsContainer.style.display = 'none';
+  // Hide the entire starter prompts section after clicking one
+  const starterPromptsSection = document.querySelector('.starter-prompts-section');
+  if (starterPromptsSection) {
+    starterPromptsSection.style.display = 'none';
   }
   
   // Optionally send the message automatically
