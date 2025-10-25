@@ -9,6 +9,15 @@ const CHAT_ENHANCEMENT_STYLES = `
 .message-citations a:hover { color: #2d3aa0; text-decoration: none; }
 .citation-meta { color: #7f8c8d; font-size: 0.75rem; }
 
+.bot-message p {
+    margin: 0 0 0.75em 0;
+    line-height: 1.6;
+}
+
+.bot-message p:last-child {
+    margin-bottom: 0;
+}
+
 .typing-indicator {
     display: inline-flex;
     align-items: center;
@@ -231,7 +240,10 @@ async function sendMessage() {
     
     const botMsg = document.createElement('div');
     botMsg.className = 'message bot-message';
-    botMsg.textContent = response.text;
+    
+    // Format text with proper paragraph structure
+    const formattedText = formatTextWithParagraphs(response.text);
+    botMsg.innerHTML = formattedText;
     
     renderCitations(botMsg, response.citations);
     messagesContainer.appendChild(botMsg);
@@ -243,6 +255,30 @@ async function sendMessage() {
 
     setInputDisabled(false);
     input.focus();
+}
+
+function formatTextWithParagraphs(text) {
+    // Split by double newlines (paragraphs) or numbered lists
+    let formatted = text
+        // Preserve existing line breaks and convert to <br>
+        .split('\n\n')
+        .map(para => para.trim())
+        .filter(para => para.length > 0)
+        .join('</p><p>');
+    
+    // Wrap in paragraph tags
+    formatted = '<p>' + formatted + '</p>';
+    
+    // Convert single newlines within paragraphs to <br>
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // Format numbered lists (1., 2., etc.)
+    formatted = formatted.replace(/(<br>)?(\d+\.)\s+/g, '<br><strong>$2</strong> ');
+    
+    // Format bullet points
+    formatted = formatted.replace(/(<br>)?[-•]\s+/g, '<br>• ');
+    
+    return formatted;
 }async function callAzureOpenAI(message) {
   try {
     const response = await fetch(AZURE_FUNCTION_URL, {
