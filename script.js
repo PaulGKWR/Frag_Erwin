@@ -8,6 +8,26 @@ const CHAT_ENHANCEMENT_STYLES = `
 .message-citations a { color: #4255c3; text-decoration: underline; }
 .message-citations a:hover { color: #2d3aa0; text-decoration: none; }
 .citation-meta { color: #7f8c8d; font-size: 0.75rem; }
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+}
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #667eea;
+    animation: typing-bounce 1.4s infinite ease-in-out;
+}
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+    30% { transform: translateY(-10px); opacity: 1; }
+}
 `;
 
 let faqData = [];
@@ -162,47 +182,46 @@ function setInputDisabled(isDisabled) {
 }
 
 async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const messagesContainer = document.getElementById('chat-messages');
-  if (!input || !messagesContainer) return;
+    const input = document.getElementById('chat-input');
+    const messagesContainer = document.getElementById('chat-messages');
+    if (!input || !messagesContainer) return;
 
-  const message = input.value.trim();
-  if (!message) return;
+    const message = input.value.trim();
+    if (!message) return;
 
-  input.value = '';
+    input.value = '';
 
-  const userMsg = createMessageElement(message, 'user-message');
-  messagesContainer.appendChild(userMsg);
-  scrollMessagesToBottom(messagesContainer);
+    const userMsg = createMessageElement(message, 'user-message');
+    messagesContainer.appendChild(userMsg);
+    scrollMessagesToBottom(messagesContainer);
 
-  const pendingMsg = createMessageElement('…', 'bot-message');
-  pendingMsg.classList.add('message-pending');
-  messagesContainer.appendChild(pendingMsg);
-  scrollMessagesToBottom(messagesContainer);
+    const pendingMsg = document.createElement('div');
+    pendingMsg.className = 'message bot-message';
+    pendingMsg.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    messagesContainer.appendChild(pendingMsg);
+    scrollMessagesToBottom(messagesContainer);
 
-  setInputDisabled(true);
+    setInputDisabled(true);
 
-  let response;
-  try {
-    response = await callAzureOpenAI(message);
-  } catch (error) {
-    console.error('Unerwarteter Fehler beim API-Call:', error);
-    response = {
-      text: `[Fallback] ${getFallbackResponse(message)}\n(Grund: ${error.message})`,
-      citations: []
-    };
-  }
+    let response;
+    try {
+        response = await callAzureOpenAI(message);
+    } catch (error) {
+        console.error('Unerwarteter Fehler beim API-Call:', error);
+        response = {
+            text: `[Fallback] ${getFallbackResponse(message)}\n(Grund: ${error.message})`,
+            citations: []
+        };
+    }
 
-  pendingMsg.textContent = response.text;
-  pendingMsg.classList.remove('message-pending');
-  renderCitations(pendingMsg, response.citations);
-  scrollMessagesToBottom(messagesContainer);
+    pendingMsg.innerHTML = '';
+    pendingMsg.textContent = response.text;
+    renderCitations(pendingMsg, response.citations);
+    scrollMessagesToBottom(messagesContainer);
 
-  setInputDisabled(false);
-  input.focus();
-}
-
-async function callAzureOpenAI(message) {
+    setInputDisabled(false);
+    input.focus();
+}async function callAzureOpenAI(message) {
   try {
     const response = await fetch(AZURE_FUNCTION_URL, {
       method: 'POST',
