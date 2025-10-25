@@ -234,12 +234,38 @@ async function sendMessage() {
     }
 
     pendingMsg.innerHTML = '';
-    pendingMsg.textContent = response.text;
+    
+    // Format text with line breaks after sentences for better readability
+    const formattedText = formatTextWithLineBreaks(response.text);
+    pendingMsg.innerHTML = formattedText;
+    
     renderCitations(pendingMsg, response.citations);
     scrollMessagesToBottom(messagesContainer);
 
     setInputDisabled(false);
     input.focus();
+}
+
+function formatTextWithLineBreaks(text) {
+    // Split by sentence endings and add line breaks
+    // Match sentences ending with . ! ? followed by space or end of string
+    const sentences = text.split(/([.!?]\s+)/);
+    let formatted = '';
+    
+    for (let i = 0; i < sentences.length; i += 2) {
+        const sentence = sentences[i];
+        const punctuation = sentences[i + 1] || '';
+        
+        if (sentence.trim()) {
+            formatted += sentence + punctuation;
+            // Add line break after each sentence, except the last one
+            if (i < sentences.length - 2) {
+                formatted += '<br><br>';
+            }
+        }
+    }
+    
+    return formatted || text;
 }async function callAzureOpenAI(message) {
   try {
     const response = await fetch(AZURE_FUNCTION_URL, {
