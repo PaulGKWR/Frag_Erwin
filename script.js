@@ -484,3 +484,118 @@ function initAnimatedPlaceholder() {
     }
   });
 }
+
+// ========================================
+// FAQ FILTERING & PAGINATION
+// ========================================
+
+const FAQ_API_URL = 'https://fragerwinchatv2.azurewebsites.net/api/faq-manager';
+let currentFAQPage = 1;
+const faqsPerPage = 6;
+let currentFilter = 'Alle';
+
+async function loadFAQs(page = 1, filter = 'Alle') {
+  const loadingDiv = document.getElementById('faq-loading');
+  const container = document.getElementById('faq-container');
+  const pagination = document.getElementById('faq-pagination');
+  
+  try {
+    loadingDiv.style.display = 'block';
+    container.style.display = 'none';
+    
+    const sortBy = filter === 'Am häufigsten genutzt' ? 'viewCount' : 'newest';
+    const response = await fetch(`${FAQ_API_URL}?action=listPaginated&page=${page}&pageSize=${faqsPerPage}&sortBy=${sortBy}`);
+    
+    if (!response.ok) throw new Error('Failed to load FAQs');
+    
+    const data = await response.json();
+    renderFAQs(data.faqs, filter);
+    renderPagination(data.page, data.totalPages);
+    
+    loadingDiv.style.display = 'none';
+    container.style.display = 'block';
+    pagination.style.display = data.totalPages > 1 ? 'flex' : 'none';
+  } catch (error) {
+    console.error('Error loading FAQs:', error);
+    loadingDiv.textContent = 'Fehler beim Laden der FAQs';
+  }
+}
+
+function renderFAQs(faqs, filter) {
+  const container = document.getElementById('faq-container');
+  
+  if (faqs.length === 0) {
+    container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Keine FAQs gefunden.</p>';
+    return;
+  }
+  
+  container.innerHTML = faqs.map(faq => {
+    const isTopQuestion = filter === 'Am häufigsten genutzt';
+    const topBadge = isTopQuestion ? '<span class="faq-top-badge">⭐ Top</span>' : '';
+    
+    return `
+      <details class="faq-item">
+        <summary class="faq-question">
+          ${topBadge}
+          ${faq.question}
+        </summary>
+        <div class="faq-answer">${faq.answer}</div>
+      </details>
+    `;
+  }).join('');
+  
+  // Track view count when FAQ is opened
+  container.querySelectorAll('.faq-item').forEach((item, index) => {
+    item.addEventListener('toggle', async function() {
+      if (this.open && faqs[index]) {
+        await fetch(`${FAQ_API_URL}?action=incrementView&id=${faqs[index].id}`, { method: 'POST' });
+      }
+    });
+  });
+}
+
+function renderPagination(currentPage, totalPages) {
+  const pagination = document.getElementById('faq-pagination');
+  
+  let html = '';
+  
+  if (currentPage > 1) {
+    html += `<button class="pagination-btn" onclick="changeFAQPage(${currentPage - 1})">← Zurück</button>`;
+  }
+  
+  html += '<div class="pagination-numbers">';
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === currentPage) {
+      html += `<span class="pagination-number active">${i}</span>`;
+    } else if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      html += `<span class="pagination-number" onclick="changeFAQPage(${i})">${i}</span>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      html += '<span class="pagination-ellipsis">...</span>';
+    }
+  }
+  html += '</div>';
+  
+  if (currentPage < totalPages) {
+    html += `<button class="pagination-btn" onclick="changeFAQPage(${currentPage + 1})">Weiter →</button>`;
+  }
+  
+  pagination.innerHTML = html;
+}
+
+function changeFAQPage(page) {
+  currentFAQPage = page;
+  loadFAQs(page, currentFilter);
+  document.querySelector('.faq-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function filterFAQs() {
+  const select = document.getElementById('faq-filter-select');
+  currentFilter = select.value;
+  currentFAQPage = 1;
+  loadFAQs(1, currentFilter);
+}
+
+// Load FAQs on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadFAQs();
+});

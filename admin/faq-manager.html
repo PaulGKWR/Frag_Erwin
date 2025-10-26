@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erwin Admin - FAQ Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn, .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover, .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        .content-box {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .faq-list {
+            margin-top: 20px;
+        }
+        .faq-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .faq-item:hover {
+            border-color: #667eea;
+        }
+        .faq-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        .faq-question {
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            font-size: 16px;
+        }
+        .faq-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .faq-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-category {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .badge-views {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .faq-answer {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .faq-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            color: #333;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 FAQ Manager</h1>
+            <div class="nav-buttons">
+                <a href="dashboard.html" class="nav-btn">Dashboard</a>
+                <a href="documents.html" class="nav-btn">Dokumente</a>
+                <button class="btn btn-success" onclick="openAddModal()">+ Neue FAQ</button>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <div id="loading" class="loading">Lade FAQs...</div>
+            <div id="faq-list" class="faq-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="faq-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Neue FAQ erstellen</h2>
+            </div>
+            <form id="faq-form">
+                <input type="hidden" id="faq-id">
+                <div class="form-group">
+                    <label for="faq-question">Frage *</label>
+                    <input type="text" id="faq-question" required>
+                </div>
+                <div class="form-group">
+                    <label for="faq-answer">Antwort *</label>
+                    <textarea id="faq-answer" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="faq-category">Kategorie</label>
+                    <select id="faq-category">
+                        <option value="Allgemein">Allgemein</option>
+                        <option value="Gebühren">Gebühren</option>
+                        <option value="Beiträge">Beiträge</option>
+                        <option value="Abwasser">Abwasser</option>
+                        <option value="Entwässerung">Entwässerung</option>
+                        <option value="Berechnungen">Berechnungen</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal()">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://fragerwinchatv2.azurewebsites.net/api';
+        const ADMIN_PASSWORD = sessionStorage.getItem('adminPassword');
+
+        if (!ADMIN_PASSWORD) {
+            window.location.href = 'index.html';
+        }
+
+        let faqs = [];
+
+        async function loadFAQs() {
+            try {
+                const response = await fetch(`${API_URL}/faq-manager?action=listAll&password=${ADMIN_PASSWORD}`);
+                if (!response.ok) throw new Error('Failed to load FAQs');
+                
+                faqs = await response.json();
+                renderFAQs();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('faq-list').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading FAQs:', error);
+                document.getElementById('loading').textContent = 'Fehler beim Laden: ' + error.message;
+            }
+        }
+
+        function renderFAQs() {
+            const container = document.getElementById('faq-list');
+            
+            if (faqs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Noch keine FAQs vorhanden.</p>';
+                return;
+            }
+
+            container.innerHTML = faqs.map(faq => `
+                <div class="faq-item">
+                    <div class="faq-header">
+                        <div class="faq-question">${faq.question}</div>
+                        <div class="faq-meta">
+                            <span class="faq-badge badge-category">${faq.category}</span>
+                            <span class="faq-badge badge-views">${faq.viewCount || 0} Views</span>
+                        </div>
+                    </div>
+                    <div class="faq-answer">${faq.answer}</div>
+                    <div class="faq-actions">
+                        <button class="btn btn-small" onclick="editFAQ('${faq.id}')">Bearbeiten</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteFAQ('${faq.id}')">Löschen</button>
+                        ${faq.isActive ? 
+                            `<button class="btn btn-small" onclick="toggleActive('${faq.id}', false)">Deaktivieren</button>` :
+                            `<button class="btn btn-success btn-small" onclick="toggleActive('${faq.id}', true)">Aktivieren</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modal-title').textContent = 'Neue FAQ erstellen';
+            document.getElementById('faq-form').reset();
+            document.getElementById('faq-id').value = '';
+            document.getElementById('faq-modal').classList.add('active');
+        }
+
+        function editFAQ(id) {
+            const faq = faqs.find(f => f.id === id);
+            if (!faq) return;
+
+            document.getElementById('modal-title').textContent = 'FAQ bearbeiten';
+            document.getElementById('faq-id').value = faq.id;
+            document.getElementById('faq-question').value = faq.question;
+            document.getElementById('faq-answer').value = faq.answer;
+            document.getElementById('faq-category').value = faq.category;
+            document.getElementById('faq-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('faq-modal').classList.remove('active');
+        }
+
+        document.getElementById('faq-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const faqData = {
+                id: document.getElementById('faq-id').value || undefined,
+                question: document.getElementById('faq-question').value,
+                answer: document.getElementById('faq-answer').value,
+                category: document.getElementById('faq-category').value,
+                isActive: true
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/faq-manager`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: faqData.id ? 'update' : 'create',
+                        password: ADMIN_PASSWORD,
+                        faq: faqData
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to save FAQ');
+
+                closeModal();
+                await loadFAQs();
+                alert('FAQ erfolgreich gespeichert!');
+            } catch (error) {
+                console.error('Error saving FAQ:', error);
+                alert('Fehler beim Speichern: ' + error.message);
+            }
+        });
+
+        async function deleteFAQ(id) {
+            if (!confirm('FAQ wirklich löschen?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/faq-manager`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'delete',
+                        password: ADMIN_PASSWORD,
+                        id: id
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to delete FAQ');
+
+                await loadFAQs();
+                alert('FAQ gelöscht!');
+            } catch (error) {
+                console.error('Error deleting FAQ:', error);
+                alert('Fehler beim Löschen: ' + error.message);
+            }
+        }
+
+        async function toggleActive(id, isActive) {
+            const faq = faqs.find(f => f.id === id);
+            if (!faq) return;
+
+            faq.isActive = isActive;
+
+            try {
+                const response = await fetch(`${API_URL}/faq-manager`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'update',
+                        password: ADMIN_PASSWORD,
+                        faq: faq
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update FAQ');
+
+                await loadFAQs();
+            } catch (error) {
+                console.error('Error updating FAQ:', error);
+                alert('Fehler beim Aktualisieren: ' + error.message);
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('faq-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        loadFAQs();
+    </script>
+</body>
+</html>

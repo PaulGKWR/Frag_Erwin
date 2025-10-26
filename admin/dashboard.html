@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erwin Admin - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .chart-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .top-questions {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .top-questions h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .question-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .question-item:last-child {
+            border-bottom: none;
+        }
+        .question-text {
+            flex: 1;
+            color: #333;
+        }
+        .question-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💧 Erwin Admin Dashboard</h1>
+            <div class="nav-buttons">
+                <a href="faq-manager.html" class="nav-btn">FAQ Manager</a>
+                <a href="documents.html" class="nav-btn">Dokumente</a>
+                <a href="../index.html" class="nav-btn">Zur Website</a>
+            </div>
+        </div>
+
+        <div id="error-container"></div>
+        <div id="loading" class="loading">Lade Statistiken...</div>
+
+        <div id="stats-container" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Gesamte Fragen</h3>
+                    <div class="value" id="total-questions">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Fragen Heute</h3>
+                    <div class="value" id="questions-today">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Fragen Diesen Monat</h3>
+                    <div class="value" id="questions-month">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Ø Pro Tag</h3>
+                    <div class="value" id="avg-per-day">0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>Fragen pro Tag (letzte 30 Tage)</h2>
+                <canvas id="daily-chart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>Fragen nach Uhrzeit</h2>
+                <canvas id="hourly-chart"></canvas>
+            </div>
+
+            <div class="top-questions">
+                <h2>Top 10 Häufigste Fragen</h2>
+                <div id="top-questions-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://fragerwinchatv2.azurewebsites.net/api';
+        const ADMIN_PASSWORD = sessionStorage.getItem('adminPassword');
+
+        if (!ADMIN_PASSWORD) {
+            window.location.href = 'index.html';
+        }
+
+        async function loadStatistics() {
+            try {
+                // Load basic stats
+                const statsResponse = await fetch(`${API_URL}/statistics?action=statistics&password=${ADMIN_PASSWORD}`);
+                if (!statsResponse.ok) throw new Error('Failed to load statistics');
+                const stats = await statsResponse.json();
+
+                document.getElementById('total-questions').textContent = stats.totalQuestions;
+                document.getElementById('questions-today').textContent = stats.questionsToday;
+                document.getElementById('questions-month').textContent = stats.questionsThisMonth;
+                document.getElementById('avg-per-day').textContent = stats.averagePerDay;
+
+                // Load analytics
+                const analyticsResponse = await fetch(`${API_URL}/statistics?action=analytics&days=30&password=${ADMIN_PASSWORD}`);
+                if (!analyticsResponse.ok) throw new Error('Failed to load analytics');
+                const analytics = await analyticsResponse.json();
+
+                // Daily chart
+                const dailyLabels = Object.keys(analytics.dailyData).sort();
+                const dailyValues = dailyLabels.map(date => analytics.dailyData[date]);
+
+                new Chart(document.getElementById('daily-chart'), {
+                    type: 'line',
+                    data: {
+                        labels: dailyLabels.map(d => new Date(d).toLocaleDateString('de-DE')),
+                        datasets: [{
+                            label: 'Fragen',
+                            data: dailyValues,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+                // Hourly chart
+                const hourlyLabels = Array.from({length: 24}, (_, i) => `${i}:00`);
+                new Chart(document.getElementById('hourly-chart'), {
+                    type: 'bar',
+                    data: {
+                        labels: hourlyLabels,
+                        datasets: [{
+                            label: 'Fragen',
+                            data: analytics.hourlyData,
+                            backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                            borderColor: '#667eea',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+
+                // Top questions
+                const topQuestionsHTML = analytics.topQuestions.map(q => `
+                    <div class="question-item">
+                        <div class="question-text">${q.question}</div>
+                        <div class="question-count">${q.count}×</div>
+                    </div>
+                `).join('');
+                document.getElementById('top-questions-list').innerHTML = topQuestionsHTML || '<p style="color: #999;">Noch keine Fragen erfasst.</p>';
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stats-container').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error-container').innerHTML = `
+                    <div class="error">Fehler beim Laden der Statistiken: ${error.message}</div>
+                `;
+            }
+        }
+
+        loadStatistics();
+    </script>
+</body>
+</html>

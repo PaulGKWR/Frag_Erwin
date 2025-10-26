@@ -31,8 +31,18 @@
 
       <!-- FAQ Section -->
       <section class="faq-section">
-        <h3>Häufig gestellte Fragen</h3>
-        <!-- FAQs werden dynamisch aus faq-data.json geladen -->
+        <div class="faq-header-controls">
+          <h3>Häufig gestellte Fragen</h3>
+          <div class="faq-filter">
+            <select id="faq-filter-select" onchange="filterFAQs()">
+              <option value="Alle">Alle anzeigen</option>
+              <option value="Am häufigsten genutzt">⭐ Am häufigsten genutzt</option>
+            </select>
+          </div>
+        </div>
+        <div id="faq-loading" class="faq-loading">Lade FAQs...</div>
+        <div id="faq-container" class="faq-container" style="display: none;"></div>
+        <div id="faq-pagination" class="faq-pagination" style="display: none;"></div>
       </section>
     </div>
   </main>

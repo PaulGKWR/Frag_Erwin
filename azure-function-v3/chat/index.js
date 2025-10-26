@@ -1,4 +1,5 @@
 const https = require('https');
+const { trackQuestion } = require('../shared/question-tracker');
 
 module.exports = async function (context, req) {
     const method = (req.method || '').toUpperCase();
@@ -262,6 +263,11 @@ oder aus allgemeinem Wissen stammt.`
         const citations = Array.isArray(citationsFromMessage) && citationsFromMessage.length
             ? citationsFromMessage
             : Array.isArray(citationsFromChoice) ? citationsFromChoice : [];
+
+        // Track question in background (don't wait for completion)
+        trackQuestion(userMessage, assistantMessage).catch(err => {
+            context.log('Failed to track question:', err);
+        });
 
         // SAS-Token zu Blob-URLs hinzufügen
         const sasToken = process.env.AZURE_BLOB_SAS_TOKEN;

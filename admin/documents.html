@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erwin Admin - Dokumente</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .content-box {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+        .upload-area.dragover {
+            background: rgba(102,126,234,0.1);
+            border-color: #764ba2;
+        }
+        .upload-area:hover {
+            background: rgba(102,126,234,0.05);
+        }
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .upload-text {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .upload-hint {
+            color: #999;
+            font-size: 14px;
+        }
+        #file-input {
+            display: none;
+        }
+        .document-list {
+            margin-top: 30px;
+        }
+        .document-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .document-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .doc-info {
+            flex: 1;
+        }
+        .doc-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .doc-meta {
+            color: #999;
+            font-size: 13px;
+        }
+        .doc-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .progress-bar {
+            display: none;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Dokument-Manager</h1>
+            <div class="nav-buttons">
+                <a href="dashboard.html" class="nav-btn">Dashboard</a>
+                <a href="faq-manager.html" class="nav-btn">FAQ Manager</a>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Dateien hier ablegen oder klicken zum Auswählen</div>
+                <div class="upload-hint">PDF, DOCX, TXT, MD - Max. 10 MB</div>
+            </div>
+            <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt,.md,.doc">
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="content-box">
+            <h2 style="margin-bottom: 20px; color: #333;">Hochgeladene Dokumente</h2>
+            <div id="loading" class="loading">Lade Dokumente...</div>
+            <div id="document-list" class="document-list" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://fragerwinchatv2.azurewebsites.net/api';
+        const ADMIN_PASSWORD = sessionStorage.getItem('adminPassword');
+
+        if (!ADMIN_PASSWORD) {
+            window.location.href = 'index.html';
+        }
+
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const progressBar = document.getElementById('progress-bar');
+        const progressFill = document.getElementById('progress-fill');
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        async function handleFiles(files) {
+            for (let file of files) {
+                // Check file size (10 MB limit)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`${file.name} ist zu groß (max. 10 MB)`);
+                    continue;
+                }
+
+                await uploadFile(file);
+            }
+        }
+
+        async function uploadFile(file) {
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Simulate progress (Azure doesn't provide real-time upload progress)
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress <= 90) {
+                        progressFill.style.width = progress + '%';
+                    }
+                }, 200);
+
+                const response = await fetch(`${API_URL}/document-manager?action=upload&password=${ADMIN_PASSWORD}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                if (!response.ok) throw new Error('Upload fehlgeschlagen');
+
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 1000);
+
+                alert(`${file.name} erfolgreich hochgeladen!`);
+                await loadDocuments();
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert(`Fehler beim Upload von ${file.name}: ${error.message}`);
+                progressBar.style.display = 'none';
+            }
+        }
+
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`${API_URL}/document-manager?action=list&password=${ADMIN_PASSWORD}`);
+                if (!response.ok) throw new Error('Failed to load documents');
+
+                const documents = await response.json();
+                renderDocuments(documents);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('document-list').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                document.getElementById('loading').textContent = 'Fehler beim Laden: ' + error.message;
+            }
+        }
+
+        function renderDocuments(documents) {
+            const container = document.getElementById('document-list');
+
+            if (documents.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Noch keine Dokumente hochgeladen.</p>';
+                return;
+            }
+
+            container.innerHTML = documents.map(doc => {
+                const sizeInMB = (doc.size / (1024 * 1024)).toFixed(2);
+                const date = new Date(doc.lastModified).toLocaleDateString('de-DE');
+                
+                return `
+                    <div class="document-item">
+                        <div class="doc-info">
+                            <div class="doc-name">📄 ${doc.name}</div>
+                            <div class="doc-meta">${sizeInMB} MB • ${date}</div>
+                        </div>
+                        <div class="doc-actions">
+                            <a href="${doc.url}" target="_blank" class="btn btn-primary">Öffnen</a>
+                            <button class="btn btn-danger" onclick="deleteDocument('${doc.name}')">Löschen</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteDocument(fileName) {
+            if (!confirm(`${fileName} wirklich löschen?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}/document-manager?action=delete&fileName=${encodeURIComponent(fileName)}&password=${ADMIN_PASSWORD}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete document');
+
+                alert('Dokument gelöscht!');
+                await loadDocuments();
+            } catch (error) {
+                console.error('Error deleting document:', error);
+                alert('Fehler beim Löschen: ' + error.message);
+            }
+        }
+
+        loadDocuments();
+    </script>
+</body>
+</html>
