@@ -82,7 +82,10 @@
         </div>
       </div>
       <div class="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Ihre Frage zu Abwassergebühren..." maxlength="500">
+        <div class="input-wrapper">
+          <input type="text" id="chat-input" maxlength="500">
+          <div class="animated-placeholder" id="animated-placeholder"></div>
+        </div>
         <button onclick="sendMessage()" id="send-button">Senden</button>
       </div>
       <div class="chat-disclaimer">
@@ -91,7 +94,7 @@
     </div>
   </div>
 
-  <script src="script.js?v=20251026m"></script>
+  <script src="script.js?v=20251026n"></script>
 
 </body>
 </html>

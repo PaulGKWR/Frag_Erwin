@@ -418,4 +418,53 @@ document.getElementById('chat-overlay')?.addEventListener('click', event => {
 window.addEventListener('DOMContentLoaded', () => {
   ensureChatStyles();
   loadFAQs();
+  initAnimatedPlaceholder();
 });
+
+function initAnimatedPlaceholder() {
+  const input = document.getElementById('chat-input');
+  const placeholder = document.getElementById('animated-placeholder');
+  
+  if (!input || !placeholder) return;
+  
+  const text = 'Ihre Frage zu Abwassergebühren...';
+  let index = 0;
+  let typingInterval;
+  
+  function typePlaceholder() {
+    if (index < text.length) {
+      placeholder.textContent = text.substring(0, index + 1);
+      index++;
+    } else {
+      clearInterval(typingInterval);
+      // Restart after a pause
+      setTimeout(() => {
+        index = 0;
+        placeholder.textContent = '';
+        typingInterval = setInterval(typePlaceholder, 80);
+      }, 3000);
+    }
+  }
+  
+  // Start typing animation
+  typingInterval = setInterval(typePlaceholder, 80);
+  
+  // Hide placeholder when input is focused or has value
+  input.addEventListener('focus', () => {
+    placeholder.style.display = 'none';
+  });
+  
+  input.addEventListener('blur', () => {
+    if (!input.value) {
+      placeholder.style.display = 'block';
+    }
+  });
+  
+  input.addEventListener('input', () => {
+    if (input.value) {
+      placeholder.style.display = 'none';
+    } else if (document.activeElement !== input) {
+      placeholder.style.display = 'block';
+    }
+  });
+}
