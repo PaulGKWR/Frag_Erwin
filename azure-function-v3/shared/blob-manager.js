@@ -1,7 +1,7 @@
 const { BlobServiceClient } = require("@azure/storage-blob");
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-const containerName = "fragerwinblob";
+const containerName = "fileupload-erwin";
 
 let blobServiceClient = null;
 let containerClient = null;
