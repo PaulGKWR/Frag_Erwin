@@ -128,10 +128,26 @@ function closeChat() {
 }
 
 function createMessageElement(text, type) {
+  const wrapper = document.createElement('div');
+  wrapper.className = `message-wrapper ${type}-wrapper`;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'message-avatar';
+  avatar.textContent = type === 'user-message' ? '👤' : '💧';
+  
   const element = document.createElement('div');
   element.className = `message ${type}`;
   element.textContent = text;
-  return element;
+  
+  if (type === 'user-message') {
+    wrapper.appendChild(element);
+    wrapper.appendChild(avatar);
+  } else {
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(element);
+  }
+  
+  return wrapper;
 }
 
 function renderCitations(messageElement, citations) {
@@ -232,14 +248,24 @@ async function sendMessage() {
 
     input.value = '';
 
-    const userMsg = createMessageElement(message, 'user-message');
-    messagesContainer.appendChild(userMsg);
+    const userMsgWrapper = createMessageElement(message, 'user-message');
+    messagesContainer.appendChild(userMsgWrapper);
     scrollMessagesToBottom(messagesContainer);
 
+    const pendingWrapper = document.createElement('div');
+    pendingWrapper.className = 'message-wrapper bot-message-wrapper';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '💧';
+    
     const pendingMsg = document.createElement('div');
     pendingMsg.className = 'message bot-message';
     pendingMsg.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
-    messagesContainer.appendChild(pendingMsg);
+    
+    pendingWrapper.appendChild(avatar);
+    pendingWrapper.appendChild(pendingMsg);
+    messagesContainer.appendChild(pendingWrapper);
     scrollMessagesToBottom(messagesContainer);
 
     setInputDisabled(true);
@@ -255,7 +281,14 @@ async function sendMessage() {
         };
     }
 
-    pendingMsg.remove();
+    pendingWrapper.remove();
+    
+    const botMsgWrapper = document.createElement('div');
+    botMsgWrapper.className = 'message-wrapper bot-message-wrapper';
+    
+    const botAvatar = document.createElement('div');
+    botAvatar.className = 'message-avatar';
+    botAvatar.textContent = '💧';
     
     const botMsg = document.createElement('div');
     botMsg.className = 'message bot-message';
@@ -265,11 +298,14 @@ async function sendMessage() {
     botMsg.innerHTML = formattedText;
     
     renderCitations(botMsg, response.citations);
-    messagesContainer.appendChild(botMsg);
+    
+    botMsgWrapper.appendChild(botAvatar);
+    botMsgWrapper.appendChild(botMsg);
+    messagesContainer.appendChild(botMsgWrapper);
     
     // Scroll to show the new message at the top of the visible area
     setTimeout(() => {
-        botMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        botMsgWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 100);
 
     setInputDisabled(false);
