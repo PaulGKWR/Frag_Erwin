@@ -247,6 +247,7 @@ async function sendMessage() {
     if (!message) return;
 
     input.value = '';
+    input.style.height = 'auto'; // Reset height after sending
 
     const userMsgWrapper = createMessageElement(message, 'user-message');
     messagesContainer.appendChild(userMsgWrapper);
@@ -419,7 +420,22 @@ window.addEventListener('DOMContentLoaded', () => {
   ensureChatStyles();
   loadFAQs();
   initAnimatedPlaceholder();
+  initAutoResizeTextarea();
 });
+
+function initAutoResizeTextarea() {
+  const textarea = document.getElementById('chat-input');
+  if (!textarea) return;
+  
+  textarea.addEventListener('input', function() {
+    // Reset height to auto to get the correct scrollHeight
+    this.style.height = 'auto';
+    
+    // Set height based on content, with min and max constraints
+    const newHeight = Math.min(Math.max(this.scrollHeight, 42), 150);
+    this.style.height = newHeight + 'px';
+  });
+}
 
 function initAnimatedPlaceholder() {
   const input = document.getElementById('chat-input');
