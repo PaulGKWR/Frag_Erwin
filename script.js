@@ -489,7 +489,8 @@ function renderFAQs(faqs, filter) {
       <details class="faq-item">
         <summary class="faq-question">
           ${topBadge}
-          ${faq.question}
+          <span class="faq-question-text">${faq.question}</span>
+          <span class="faq-icon">+</span>
         </summary>
         <div class="faq-answer">${faq.answer}</div>
       </details>
@@ -547,11 +548,36 @@ function filterFAQs() {
   loadFAQs(1, currentFilter);
 }
 
-// Load FAQs on page load
+async function loadCategories() {
+  try {
+    const response = await fetch(`${FAQ_API_URL}?action=categories`);
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    const categories = data.categories || [];
+    
+    const select = document.getElementById('faq-filter-select');
+    
+    // Keep "Alle" and "Am häufigsten genutzt", add categories
+    const currentOptions = select.innerHTML;
+    const categoryOptions = categories
+      .filter(cat => cat && cat !== 'Alle' && cat !== 'Am häufigsten genutzt')
+      .map(cat => `<option value="${cat}">${cat}</option>`)
+      .join('');
+    
+    select.innerHTML = currentOptions + categoryOptions;
+  } catch (error) {
+    console.error('Error loading categories:', error);
+  }
+}
+
+// Load FAQs and categories on page load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
     loadFAQs();
   });
 } else {
+  loadCategories();
   loadFAQs();
 }
