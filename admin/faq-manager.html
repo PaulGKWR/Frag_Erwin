@@ -250,7 +250,10 @@
                 const response = await fetch(`${API_URL}/faq-manager?action=listAll&password=${ADMIN_PASSWORD}`);
                 if (!response.ok) throw new Error('Failed to load FAQs');
                 
-                faqs = await response.json();
+                const data = await response.json();
+                console.log('FAQ API Response:', data);
+                faqs = data.faqs || data || [];
+                console.log('Extracted FAQs:', faqs);
                 renderFAQs();
                 
                 document.getElementById('loading').style.display = 'none';
@@ -264,7 +267,7 @@
         function renderFAQs() {
             const container = document.getElementById('faq-list');
             
-            if (faqs.length === 0) {
+            if (!Array.isArray(faqs) || faqs.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: #999;">Noch keine FAQs vorhanden.</p>';
                 return;
             }
