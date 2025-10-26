@@ -1,33 +1,60 @@
-# Azure Function Deployment via PowerShell
+# Azure Function Deployment via VS Code CLI
+# This script helps deploy the Azure Function using func CLI
 
-Write-Host "Starting Azure Function Deployment..." -ForegroundColor Green
+Write-Host "=== Azure Function Deployment ===" -ForegroundColor Cyan
+Write-Host ""
 
-# Schritt 1: Wechsle in den Function-Ordner
-Set-Location -Path "azure-function-v3"
+# Function App Details
+$functionAppName = "fragerwinchatv2"
+$resourceGroup = "FragErwin_group"  # Adjust if different
 
-# Schritt 2: Erstelle ZIP-Datei für Deployment
-Write-Host "Creating deployment package..." -ForegroundColor Yellow
+Write-Host "Target Function App: $functionAppName" -ForegroundColor Green
+Write-Host ""
 
-$deploymentZip = "..\deployment.zip"
-if (Test-Path $deploymentZip) {
-    Remove-Item $deploymentZip
+# Check if func CLI is available
+$funcPath = Get-Command func -ErrorAction SilentlyContinue
+
+if ($funcPath) {
+    Write-Host "Azure Functions Core Tools found!" -ForegroundColor Green
+    Write-Host "Starting deployment..." -ForegroundColor Yellow
+    Write-Host ""
+    
+    # Navigate to function directory
+    Push-Location "azure-function-v3"
+    
+    # Deploy using func CLI
+    func azure functionapp publish $functionAppName --build remote
+    
+    Pop-Location
+    
+    Write-Host ""
+    Write-Host "Deployment completed!" -ForegroundColor Green
+    
+} else {
+    Write-Host "Azure Functions Core Tools not found in PATH" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Please use one of these methods:" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "METHOD 1: VS Code Azure Extension" -ForegroundColor White
+    Write-Host "  1. Press Ctrl+Shift+P" -ForegroundColor Gray
+    Write-Host "  2. Type: Azure Functions: Deploy to Function App" -ForegroundColor Gray
+    Write-Host "  3. Browse to folder: azure-function-v3" -ForegroundColor Gray
+    Write-Host "  4. Select: fragerwinchatv2" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "METHOD 2: Azure Portal (Manual Upload)" -ForegroundColor White
+    Write-Host "  1. Go to https://portal.azure.com" -ForegroundColor Gray
+    Write-Host "  2. Open Function App 'fragerwinchatv2'" -ForegroundColor Gray
+    Write-Host "  3. Click 'Advanced Tools' (Kudu)" -ForegroundColor Gray
+    Write-Host "  4. Click 'Go' -> Debug Console -> CMD" -ForegroundColor Gray
+    Write-Host "  5. Navigate to: cd site\wwwroot" -ForegroundColor Gray
+    Write-Host "  6. Drag & Drop files from azure-function-v3" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "METHOD 3: Install Azure Functions Core Tools" -ForegroundColor White
+    Write-Host "  Run: npm install -g azure-functions-core-tools@4 --unsafe-perm true" -ForegroundColor Gray
+    Write-Host ""
 }
 
-# Komprimiere alle Dateien
-Compress-Archive -Path * -DestinationPath $deploymentZip -Force
+Write-Host "Function App URL: https://$functionAppName.azurewebsites.net" -ForegroundColor Cyan
 
-Write-Host "Deployment package created: $deploymentZip" -ForegroundColor Green
-
-# Schritt 3: Upload via Kudu REST API
-$functionAppName = "fragerwinchatv2"
-$kuduUrl = "https://$functionAppName.scm.azurewebsites.net/api/zipdeploy"
-
-Write-Host "`nNext steps:" -ForegroundColor Cyan
-Write-Host "1. Go to Azure Portal" -ForegroundColor White
-Write-Host "2. Open Function App 'fragerwinchatv2'" -ForegroundColor White
-Write-Host "3. Go to 'Deployment Center' > 'Manual Deployment'" -ForegroundColor White
-Write-Host "4. Or upload deployment.zip via Kudu Console" -ForegroundColor White
-Write-Host "`nOr use VS Code Azure Extension:" -ForegroundColor Cyan
-Write-Host "Ctrl+Shift+P > 'Azure Functions: Deploy to Function App'" -ForegroundColor White
-
-Set-Location -Path ".."

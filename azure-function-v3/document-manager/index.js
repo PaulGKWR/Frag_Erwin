@@ -1,5 +1,4 @@
 const { uploadDocument, listDocuments, deleteDocument } = require('../shared/blob-manager');
-const multipart = require('parse-multipart');
 
 module.exports = async function (context, req) {
     // CORS Headers
@@ -19,39 +18,27 @@ module.exports = async function (context, req) {
     try {
         const password = req.query.password || req.headers['x-admin-password'];
 
-        // Admin-Check
-        if (password !== process.env.ADMIN_PASSWORD) {
+        // Admin-Check für alle Aktionen außer list
+        const action = req.query.action;
+        if (action !== 'list' && password !== process.env.ADMIN_PASSWORD) {
             context.res.status = 401;
             context.res.body = { error: 'Unauthorized' };
             return;
         }
 
-        const action = req.query.action;
-
         if (req.method === 'POST' && action === 'upload') {
-            // Parse multipart form data
-            const contentType = req.headers['content-type'];
-            if (!contentType || !contentType.includes('multipart/form-data')) {
+            // Expect JSON body with base64 encoded file
+            const { fileName, fileContent, contentType } = req.body || {};
+            
+            if (!fileName || !fileContent) {
                 context.res.status = 400;
-                context.res.body = { error: 'Content-Type must be multipart/form-data' };
+                context.res.body = { error: 'fileName and fileContent required' };
                 return;
             }
 
-            const boundary = multipart.getBoundary(contentType);
-            const parts = multipart.Parse(req.body, boundary);
-
-            if (!parts || parts.length === 0) {
-                context.res.status = 400;
-                context.res.body = { error: 'No file uploaded' };
-                return;
-            }
-
-            const file = parts[0];
-            const fileName = file.filename;
-            const fileBuffer = file.data;
-            const fileContentType = file.type || 'application/octet-stream';
-
-            const result = await uploadDocument(fileName, fileBuffer, fileContentType);
+            // Decode base64 to buffer
+            const fileBuffer = Buffer.from(fileContent, 'base64');
+            const result = await uploadDocument(fileName, fileBuffer, contentType || 'application/octet-stream');
             context.res.status = result.success ? 200 : 500;
             context.res.body = result;
 

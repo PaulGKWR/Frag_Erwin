@@ -246,11 +246,16 @@
             progressBar.style.display = 'block';
             progressFill.style.width = '0%';
 
-            const formData = new FormData();
-            formData.append('file', file);
-
             try {
-                // Simulate progress (Azure doesn't provide real-time upload progress)
+                // Read file as base64
+                const reader = new FileReader();
+                const fileContent = await new Promise((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result.split(',')[1]); // Remove data:...;base64, prefix
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                // Simulate progress
                 let progress = 0;
                 const progressInterval = setInterval(() => {
                     progress += 10;
@@ -261,13 +266,23 @@
 
                 const response = await fetch(`${API_URL}/document-manager?action=upload&password=${ADMIN_PASSWORD}`, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileContent: fileContent,
+                        contentType: file.type || 'application/octet-stream'
+                    })
                 });
 
                 clearInterval(progressInterval);
                 progressFill.style.width = '100%';
 
-                if (!response.ok) throw new Error('Upload fehlgeschlagen');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Upload fehlgeschlagen');
+                }
 
                 setTimeout(() => {
                     progressBar.style.display = 'none';
@@ -285,10 +300,11 @@
 
         async function loadDocuments() {
             try {
-                const response = await fetch(`${API_URL}/document-manager?action=list&password=${ADMIN_PASSWORD}`);
+                const response = await fetch(`${API_URL}/document-manager?action=list`);
                 if (!response.ok) throw new Error('Failed to load documents');
 
-                const documents = await response.json();
+                const data = await response.json();
+                const documents = data.documents || [];
                 renderDocuments(documents);
 
                 document.getElementById('loading').style.display = 'none';

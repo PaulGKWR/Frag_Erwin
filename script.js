@@ -62,57 +62,6 @@ function ensureChatStyles() {
   document.head.appendChild(style);
 }
 
-async function loadFAQs() {
-  try {
-    const response = await fetch('faq-data.json');
-    faqData = await response.json();
-    renderFAQs();
-  } catch (error) {
-    console.error('Fehler beim Laden der FAQs:', error);
-  }
-}
-
-function renderFAQs() {
-  const faqSection = document.querySelector('.faq-section');
-  if (!faqSection || !faqData?.faqs) return;
-
-  faqSection.querySelectorAll('.faq-item').forEach(item => item.remove());
-
-  faqData.faqs.forEach((faq, index) => {
-    const faqItem = document.createElement('div');
-    faqItem.className = 'faq-item';
-    faqItem.innerHTML = `
-      <button class="faq-question" data-faq-index="${index}">
-        <span>${faq.frage}</span>
-        <span class="faq-icon">+</span>
-      </button>
-      <div class="faq-answer">${faq.antwort}</div>
-    `;
-    faqSection.appendChild(faqItem);
-  });
-}
-
-function toggleFaq(index) {
-  const faqItems = document.querySelectorAll('.faq-item');
-  if (index < 0 || index >= faqItems.length) return;
-
-  const clickedItem = faqItems[index];
-  const clickedAnswer = clickedItem.querySelector('.faq-answer');
-  const isOpen = clickedItem.classList.contains('active');
-
-  faqItems.forEach((item, itemIndex) => {
-    const answer = item.querySelector('.faq-answer');
-    if (!answer) return;
-    if (itemIndex === index && !isOpen) {
-      item.classList.add('active');
-      answer.classList.add('open');
-    } else {
-      item.classList.remove('active');
-      answer.classList.remove('open');
-    }
-  });
-}
-
 function openChat() {
   const overlay = document.getElementById('chat-overlay');
   if (overlay) {
@@ -418,9 +367,9 @@ document.getElementById('chat-overlay')?.addEventListener('click', event => {
 
 window.addEventListener('DOMContentLoaded', () => {
   ensureChatStyles();
-  loadFAQs();
   initAnimatedPlaceholder();
   initAutoResizeTextarea();
+  loadFAQs(1, 'Alle'); // Load FAQs from API
 });
 
 function initAutoResizeTextarea() {
@@ -596,6 +545,10 @@ function filterFAQs() {
 }
 
 // Load FAQs on page load
-document.addEventListener('DOMContentLoaded', function() {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    loadFAQs();
+  });
+} else {
   loadFAQs();
-});
+}
