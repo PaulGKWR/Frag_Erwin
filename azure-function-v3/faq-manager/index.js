@@ -1,17 +1,18 @@
 const { upsertFAQ, getAllFAQs, getFAQsPaginated, deleteFAQ, incrementViewCount, getCategories } = require('../shared/faq-manager');
 
 module.exports = async function (context, req) {
-    // CORS Headers
-    context.res = {
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        }
+    // CORS Headers - set immediately
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     };
+
+    context.res = { headers: corsHeaders };
 
     if (req.method === 'OPTIONS') {
         context.res.status = 200;
+        context.res.body = '';
         return;
     }
 
@@ -72,7 +73,7 @@ module.exports = async function (context, req) {
         } else if (action === 'listAll') {
             const faqs = await getAllFAQs(false);
             context.res.status = 200;
-            context.res.body = faqs;
+            context.res.body = { faqs: faqs };
         } else if (action === 'incrementView') {
             const id = req.query.id || req.body?.id;
             if (!id) {
