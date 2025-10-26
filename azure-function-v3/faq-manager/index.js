@@ -38,7 +38,7 @@ module.exports = async function (context, req) {
             } else if (action === 'categories') {
                 const categories = await getCategories();
                 context.res.status = 200;
-                context.res.body = categories;
+                context.res.body = { categories: categories };
             }
             return;
         }

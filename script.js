@@ -445,12 +445,15 @@ let currentFilter = 'Alle';
 
 async function loadFAQs(page = 1, filter = 'Alle') {
   const loadingDiv = document.getElementById('faq-loading');
+  const skeleton = document.getElementById('faq-skeleton');
   const container = document.getElementById('faq-container');
   const pagination = document.getElementById('faq-pagination');
   
   try {
-    loadingDiv.style.display = 'block';
+    // Show skeleton, hide content
+    if (skeleton) skeleton.style.display = 'block';
     container.style.display = 'none';
+    if (loadingDiv) loadingDiv.style.display = 'none';
     
     const sortBy = filter === 'Am häufigsten genutzt' ? 'viewCount' : 'newest';
     const response = await fetch(`${FAQ_API_URL}?action=listPaginated&page=${page}&pageSize=${faqsPerPage}&sortBy=${sortBy}`);
@@ -464,12 +467,17 @@ async function loadFAQs(page = 1, filter = 'Alle') {
     renderFAQs(faqs, filter);
     renderPagination(data.page || 1, data.totalPages || 1);
     
-    loadingDiv.style.display = 'none';
+    // Hide skeleton, show content
+    if (skeleton) skeleton.style.display = 'none';
     container.style.display = 'block';
     pagination.style.display = (data.totalPages || 0) > 1 ? 'flex' : 'none';
   } catch (error) {
     console.error('Error loading FAQs:', error);
-    loadingDiv.textContent = 'Fehler beim Laden der FAQs: ' + error.message;
+    if (skeleton) skeleton.style.display = 'none';
+    if (loadingDiv) {
+      loadingDiv.style.display = 'block';
+      loadingDiv.textContent = 'Fehler beim Laden der FAQs: ' + error.message;
+    }
   }
 }
 
@@ -551,21 +559,36 @@ function filterFAQs() {
 async function loadCategories() {
   try {
     const response = await fetch(`${FAQ_API_URL}?action=categories`);
-    if (!response.ok) return;
+    if (!response.ok) {
+      console.error('Categories API failed:', response.status);
+      return;
+    }
     
     const data = await response.json();
-    const categories = data.categories || [];
+    console.log('Categories API Response:', data);
+    const categories = data.categories || data || [];
+    
+    if (!Array.isArray(categories)) {
+      console.error('Categories is not an array:', categories);
+      return;
+    }
     
     const select = document.getElementById('faq-filter-select');
+    if (!select) return;
     
-    // Keep "Alle" and "Am häufigsten genutzt", add categories
-    const currentOptions = select.innerHTML;
+    // Keep existing options
+    const existingHTML = select.innerHTML;
+    
+    // Add category options
     const categoryOptions = categories
       .filter(cat => cat && cat !== 'Alle' && cat !== 'Am häufigsten genutzt')
       .map(cat => `<option value="${cat}">${cat}</option>`)
       .join('');
     
-    select.innerHTML = currentOptions + categoryOptions;
+    if (categoryOptions) {
+      select.innerHTML = existingHTML + categoryOptions;
+      console.log('Added categories:', categories);
+    }
   } catch (error) {
     console.error('Error loading categories:', error);
   }
