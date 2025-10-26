@@ -458,22 +458,25 @@ async function loadFAQs(page = 1, filter = 'Alle') {
     if (!response.ok) throw new Error('Failed to load FAQs');
     
     const data = await response.json();
-    renderFAQs(data.faqs, filter);
-    renderPagination(data.page, data.totalPages);
+    console.log('FAQ API Response:', data); // Debug log
+    
+    const faqs = data.faqs || [];
+    renderFAQs(faqs, filter);
+    renderPagination(data.page || 1, data.totalPages || 1);
     
     loadingDiv.style.display = 'none';
     container.style.display = 'block';
-    pagination.style.display = data.totalPages > 1 ? 'flex' : 'none';
+    pagination.style.display = (data.totalPages || 0) > 1 ? 'flex' : 'none';
   } catch (error) {
     console.error('Error loading FAQs:', error);
-    loadingDiv.textContent = 'Fehler beim Laden der FAQs';
+    loadingDiv.textContent = 'Fehler beim Laden der FAQs: ' + error.message;
   }
 }
 
 function renderFAQs(faqs, filter) {
   const container = document.getElementById('faq-container');
   
-  if (faqs.length === 0) {
+  if (!faqs || faqs.length === 0) {
     container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Keine FAQs gefunden.</p>';
     return;
   }
@@ -496,7 +499,7 @@ function renderFAQs(faqs, filter) {
   // Track view count when FAQ is opened
   container.querySelectorAll('.faq-item').forEach((item, index) => {
     item.addEventListener('toggle', async function() {
-      if (this.open && faqs[index]) {
+      if (this.open && faqs[index] && faqs[index].id) {
         await fetch(`${FAQ_API_URL}?action=incrementView&id=${faqs[index].id}`, { method: 'POST' });
       }
     });

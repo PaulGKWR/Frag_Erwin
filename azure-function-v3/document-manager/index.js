@@ -45,7 +45,7 @@ module.exports = async function (context, req) {
         } else if (req.method === 'GET' && action === 'list') {
             const documents = await listDocuments();
             context.res.status = 200;
-            context.res.body = documents;
+            context.res.body = { documents: documents };
 
         } else if (req.method === 'DELETE' && action === 'delete') {
             const fileName = req.query.fileName;

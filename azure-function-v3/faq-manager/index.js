@@ -24,7 +24,7 @@ module.exports = async function (context, req) {
             if (action === 'list') {
                 const faqs = await getAllFAQs(true);
                 context.res.status = 200;
-                context.res.body = faqs;
+                context.res.body = { faqs: faqs };
             } else if (action === 'listPaginated') {
                 const page = parseInt(req.query.page) || 1;
                 const pageSize = parseInt(req.query.pageSize) || 6;
